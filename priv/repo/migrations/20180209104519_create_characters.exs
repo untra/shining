@@ -1,0 +1,21 @@
+defmodule Shining.Repo.Migrations.CreateCharacters do
+  use Ecto.Migration
+
+  def change do
+    create table(:characters) do
+      add :name, :string
+      add :class, :integer
+      add :race, :integer
+      add :sex, :boolean, default: false, null: false
+      add :exp, :integer
+      add :level, :integer
+      add :skills, {:array, :integer}
+      add :items, {:array, :integer}
+      add :equipment, {:array, :integer}
+      add :history, {:array, :integer}
+
+      timestamps()
+    end
+
+  end
+end
