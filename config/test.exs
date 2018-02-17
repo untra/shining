@@ -17,3 +17,6 @@ config :shining, Shining.Repo,
   database: "shining_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+  # Weaken Bcrypt during tests
+  config :bcrypt_elixir, log_rounds: 4

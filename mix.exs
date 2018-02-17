@@ -33,6 +33,9 @@ defmodule Shining.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bcrypt_elixir, "~> 1.0.6"},
+      {:comeonin, "~> 4.1.0"},
+      {:guardian, "~> 1.0"},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_pubsub, "~> 1.0"},
       {:phoenix_ecto, "~> 3.2"},

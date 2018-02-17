@@ -25,3 +25,8 @@ config :logger, :console,
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"
+
+# TODO: remove this secret
+config :shining, ShiningWeb.Guardian,
+       issuer: "shining-0.0.1",
+       secret_key: "Sc/HcZoiE+YNBVi8xox4ZN+WAbCWx2P0iJyqPSvzODuDkqWgCDrtWE+Yq5O0W7Iu"

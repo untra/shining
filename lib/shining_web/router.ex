@@ -13,6 +13,23 @@ defmodule ShiningWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :api_auth do
+    plug ShiningWeb.Guardian.AuthPipeline
+  end
+  
+  scope "/api", ShiningWeb.Api do
+    pipe_through :api
+  
+    resources "/users", UserController, only: [:create]
+    post "/users/sign_in", UserController, :sign_in
+  end
+
+  scope "/api", ShiningWeb.Api do
+    pipe_through [:api, :api_auth]
+  
+    resources "/users", UserController, only: [:update, :show, :delete]
+  end
+
   scope "/", ShiningWeb do
     pipe_through :browser # Use the default browser stack
 
