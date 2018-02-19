@@ -1,4 +1,5 @@
 defmodule Shining.Engine.Player do
+  alias Shining.Engine.Player
   @enforce_keys [:user_id]
   defstruct [:user_id, :characters, :champion]
 

@@ -7,12 +7,13 @@ defmodule Shining.Repo.Migrations.CreateCharacters do
       add :class, :integer
       add :race, :integer
       add :sex, :boolean, default: false, null: false
+      add :champion, :boolean, default: false, null: false
       add :exp, :integer
       add :level, :integer
       add :skills, {:array, :integer}
       add :items, {:array, :integer}
       add :equipment, {:array, :integer}
-      add :history, {:array, :integer}
+      add :history, {:array, :string}
 
       timestamps()
     end

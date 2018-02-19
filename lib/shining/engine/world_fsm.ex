@@ -14,16 +14,16 @@ defmodule Shining.Engine.WorldFSM do
     GenServer.call(game, {:add_player, player})
   end
 
-  def handle_call({:add_player, player = %Player{}}, _from, state) do
-    with {:ok, rules} <- WorldRules.check(state, :add_player, player)
-    do
-      state
-      |> update_player2_name(name)
-      |> update_rules(rules)
-      |> reply_success(:ok)
-    else
-      :error -> {:reply, :error, state_data}
-    end
-  end
+  # def handle_call({:add_player, player = %Player{}}, _from, state) do
+  #   with {:ok, rules} <- WorldRules.check(state, :add_player, player)
+  #   do
+  #     state
+  #     |> update_player2_name(name)
+  #     |> update_rules(rules)
+  #     |> reply_success(:ok)
+  #   else
+  #     :error -> {:reply, :error, state_data}
+  #   end
+  # end
             
 end
