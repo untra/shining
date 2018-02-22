@@ -8,7 +8,10 @@ defmodule Shining.Engine.CharacterFSM do
     {:ok, Character.init_statusquo(character)}
   end
 
-  def via_tuple(world_number), do: {:via, Registry, {Registry.World, "WORLD-#{world_number}"}}
+  def via_tuple(character) do
+    # TODO: fix this
+    {:via, Registry, {Registry.Characters, "CHARACTER-"}}
+  end
 
   def handle_call({:add_player, player = %Player{}}, _from, state) do
     
@@ -26,6 +29,11 @@ defmodule Shining.Engine.CharacterFSM do
 
   # taking some status effect change
   def handle_cast({:take_effect, effect}, state) do
+    {:noreply, state}
+  end
+
+  # oh snap, the character died!
+  def handle_cast({:character_death, details}, state) do
     {:noreply, state}
   end
 

@@ -6,6 +6,7 @@ defmodule Shining.Repo.Migrations.CreateCharacters do
       add :name, :string
       add :class, :integer
       add :race, :integer
+      add :appearance, :integer
       add :sex, :boolean, default: false, null: false
       add :champion, :boolean, default: false, null: false
       add :exp, :integer

@@ -12,6 +12,7 @@ defmodule Shining.Engine.Character do
     field :class, :integer
     field :equipment, {:array, :integer}
     field :exp, :integer
+    field :appearance, :integer
     field :history, {:array, :string}
     field :items, {:array, :integer}
     field :level, :integer
@@ -34,7 +35,68 @@ defmodule Shining.Engine.Character do
     |> validate_required([:name, :class, :race, :sex, :exp, :level, :skills, :items, :equipment, :history])
   end
 
-  defp init_statusquo(%Character{} = character) do
+  def isDead?(%Character{statusquo: %{curHP: curHP}}) when curHP >  0, do: true
+  def isDead?(%Character{statusquo: %{curHP: curHP}}) when curHP <= 0, do: false
+
+  def calculateATK(%Character{} = character) do
+    (1 + raceAtk(character)
+    + classAtk(character)
+    + weaponAtk(character)) * appliedAtkMod(character)
+  end
+
+  def calculateDEF(%Character{} = character) do
+    (1 + raceDef(character)
+    + classDef(character)
+    + armorDef(character)) * appliedDefMod(character)
+  end
+
+  def calculateCritical?(luck, %Character{} = attacker, %Character{} = target) when is_float(luck) do
+    luck > calculateCriticalPercentage(attacker, target)
+  end
+
+  def calculateHit?(luck, %Character{} = attacker, %Character{} = target) when is_float(luck) do
+    luck > calculateHitPercentage(attacker, target)
+  end
+
+  defp calculateCriticalPercentage(%Character{} = attacker, %Character{} = target) do
+    -0.95 + appliedBounds(0)
+  end
+
+  defp calculateHitPercentage(%Character{} = attacker, %Character{} = target) do
+    -0.05 + appliedAccMod(attacker) - appliedEvaMod(target)
+  end
+
+  def calculateDamage(%Character{} = attacker, %Character{} = target) do
+    calculateATK(attacker) - calculateDEF(target)
+    |> Float.ceil
+    |> max(0)
+    |> min(255)
+  end
+
+  # TODO: move this logic to the phazer frontend
+  def canEquip?(%Character{} = character, item) do
+    %{
+      consumable: fn (_) -> false end,
+      armor: fn (armor) -> canEquipArmor?(character, armor) end,
+      weapon: fn (weapon) -> canEquipWeapon?(character, weapon) end,
+      bonus: fn(_) -> false end,
+    }[item.type].(item.specifically)
+  end
+
+  # TODO: move this logic to the phazer frontend
+  defp canEquipArmor?(%Character{} = character, %{kind: kind}) do
+    armor_permissions[kind]
+    |> Enum.member(character.race)
+  end
+
+  # TODO: move this logic to the phazer frontend
+  defp canEquipWeapon?(%Character{} = character, %{kind: kind}) do
+    weapon_permissions[kind]
+    |> Enum.member(character.class)
+  end
+
+
+  def init_statusquo(%Character{} = character) do
     max_hp = getMaxHP(character)
     %{character | statusquo: %{
       maxHP: max_hp,
@@ -54,22 +116,46 @@ defmodule Shining.Engine.Character do
     }}
   end
 
+  defp appliedAtkMod(%Character{statusquo: %{curATKmod: curATKmod}}), do: appliedBounds(curATKmod)
+  defp appliedDefMod(%Character{statusquo: %{curDEFmod: curDEFmod}}), do: appliedBounds(curDEFmod)
+  defp appliedAccMod(%Character{statusquo: %{curACCmod: curACCmod}}), do: appliedBounds(curACCmod)
+  defp appliedEvaMod(%Character{statusquo: %{curEVAmod: curEVAmod}}), do: appliedBounds(curEVAmod)
+
+  defp appliedBounds(stat) do
+    [0.25, 0.4, 0.55, 0.70, 0.85, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
+    |> Enum.at(min(max(stat + 5,-5),5))
+  end
+
+  defp weaponAtk(%Character{equipment: []}), do: 0
+  defp weaponAtk(%Character{equipment: equipment}) do
+    equipment
+    |> Enum.map(&(&1.specifically.atk))
+    |> Enum.sum()
+  end
+
+  defp armorDef(%Character{equipment: []}), do: 0
+  defp armorDef(%Character{equipment: equipment}) do
+    equipment
+    |> Enum.map(&(&1.specifically.def))
+    |> Enum.sum()
+  end
+
   defp getMaxHP(%Character{} = character) do
     champion_hp = if character.champion, do: 5, else: 0
-    init_race_hp = race_stats[character.race][:init_hp]
-    incr_race_hp = race_stats[character.race][:incr_hp]
-    leveled_hp = character.level * incr_race_hp
-    # TODO: get class hp
-    champion_hp + init_race_hp + leveled_hp
+    1 + champion_hp
+    + race_stats[character.race][:init_hp]
+    + (race_stats[character.race][:incr_hp] * character.level)
+    + class_stats[character.class][:init_hp]
+    + (class_stats[character.class][:incr_hp] * character.level)
   end
 
   defp getMaxSP(%Character{} = character) do
     champion_sp = if character.champion, do: 5, else: 0
-    init_race_sp = race_stats[character.race][:init_sp]
-    incr_race_sp = race_stats[character.race][:incr_sp]
-    leveled_sp = character.level * incr_race_sp
-    # TODO: get class sp
-    champion_sp + init_race_sp + leveled_sp
+    1 + champion_sp
+    + race_stats[character.race][:init_sp]
+    + (race_stats[character.race][:incr_sp] * character.level)
+    + class_stats[character.class][:init_sp]
+    + (class_stats[character.class][:incr_sp] * character.level)
   end
 
   defp getInitSP(%Character{} = character) do
@@ -82,14 +168,38 @@ defmodule Shining.Engine.Character do
     end
   end
 
-  defp getMaxAP(%Character{} = character) do
-    race_stats[character.race][:ap_per_turn]
-  end
+  defp getMaxAP(%Character{} = character), do: race_stats[character.race][:ap_per_turn]
+
+  defp raceAtk(%Character{} = character), do: race_stats[character.race][:init_atk]
+  defp raceDef(%Character{} = character), do: race_stats[character.race][:init_def]
+  defp classAtk(%Character{} = character), do: class_stats[character.class][:init_atk]
+  defp classDef(%Character{} = character), do: class_stats[character.class][:init_def]
+
+  defp armor_permissions(), do: %{
+    armor_robes: [:human, :fey, :canid, :ratman, :undead],
+    armor_light: [:fey, :ember, :ratman, :avis, :undead],
+    armor_heavy: [:human, :ember, :canid, :centaur, :undead],
+  }
+
+  defp weapon_permissions(), do: %{
+    weapon_sword: [:mercenary],
+    weapon_axe: [:mercenary],
+    weapon_spear: [:mercenary],
+    weapon_staff: [:mages, :healers],
+    weapon_bow: [:archer]
+  }
 
   defp race_stats(), do: %{
     human:    %{init_hp: 60, init_sp: 40, incr_hp: 6, incr_sp: 4, init_atk: 5, init_def: 2, movement: 5, ap_per_turn: 20_000},
     fey:      %{init_hp: 50, init_sp: 50, incr_hp: 3, incr_sp: 8, init_atk: 5, init_def: 2, movement: 5, ap_per_turn: 20_000},
     ember:    %{init_hp: 50, init_sp: 50, incr_hp: 8, incr_sp: 3, init_atk: 5, init_def: 2, movement: 5, ap_per_turn: 20_000},
+  }
+
+  defp class_stats(), do: %{
+    mercenary: %{init_hp: 4, init_sp: 2, incr_hp: 2, incr_sp: 1, init_atk: 3, init_def: 1},
+    healer:    %{init_hp: 3, init_sp: 3, incr_hp: 2, incr_sp: 1, init_atk: 0, init_def: 3},
+    archer:    %{init_hp: 3, init_sp: 3, incr_hp: 1, incr_sp: 2, init_atk: 3, init_def: 0},
+    mage:      %{init_hp: 2, init_sp: 4, incr_hp: 1, incr_sp: 2, init_atk: 2, init_def: 2},
   }
 
 end

@@ -3,8 +3,10 @@
  **/
 const path = require("path");
 const webpack = require("webpack");
+const env = process.env.MIX_ENV || 'dev'
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const isProduction = (env === 'prod')
 
 
 /*
@@ -19,21 +21,17 @@ module.exports = (env) => {
 
     context: __dirname,
 
-    entry: {
-      
-    },
-
-    entry: {
-      app: [
-        "js/app.js",
-      ],
-      phaser: "js/game.js"
-    },
+    entry: './web/static/js/app.js',
 
     output: {
-      path: path.resolve(__dirname, "../priv/static"),
-      filename: 'js/[name].js',
-      publicPath: 'http://localhost:8080/'
+      path: path.resolve(__dirname, '../priv/static/'),
+      filename: 'app.js'
+    },
+
+    resolve: {
+      alias: {
+        phoenix: __dirname + '/deps/phoenix/web/static/js/phoenix.js'
+      }
     },
 
     devServer: {
@@ -43,66 +41,44 @@ module.exports = (env) => {
     },
 
     module: {
-      rules: [
-        {
-          test: [ /\.vert$/, /\.frag$/ ],
-          use: 'raw-loader'
-        },
-
-        {
-          test: /\.(jsx?)$/,
-          exclude: /node_modules/,
-          loader: "babel-loader"
-        },
-
-        {
-          test: /\.(gif|png|jpe?g|svg)$/i,
-          exclude: /node_modules/,
-          loaders: [
-            'file-loader?name=images/[name].[ext]',
-            {
-              loader: 'image-webpack-loader',
-              options: {
-                query: {
-                  mozjpeg: {
-                    progressive: true,
-                  },
-                  gifsicle: {
-                    interlaced: true,
-                  },
-                  optipng: {
-                    optimizationLevel: 7,
-                  },
-                  pngquant: {
-                    quality: '65-90',
-                    speed: 4
-                  }
-                }
-              }
+      loaders: [
+          {
+            test: /\.jsx?$/,
+            exclude: /(node_modules|bower_components)/,
+            loader: 'babel',
+            query: {
+              presets: ['es2015', 'react']
             }
-          ]
-        },
-
-        {
-          test: /\.(ttf|woff2?|eot|svg)$/,
-          exclude: /node_modules/,
-          query: { name: "fonts/[hash].[ext]" },
-          loader: "file-loader",
-        },
-
-        {
-          test: /\.(css|styl)$/,
-          exclude: /node_modules/,
-          use: isDev ? [
-            "style-loader",
-            "css-loader",
-            "postcss-loader",
-          ] : ExtractTextPlugin.extract({
-            fallback: "style-loader",
-            use: ["css-loader", "postcss-loader"]
-          })
-        }
-      ]
+          },
+          {
+            test: /\.scss$/,
+            loader: ExtractTextPlugin.extract(
+              'style',
+              'css' + '!sass?outputStyle=expanded'
+            )
+          },
+          // Inlining not working
+          {
+            test: /\.(png|jpg)$/,
+            loader: 'url-loader?limit=8192'
+          },
+          {
+            test: /\.woff(2)?(\?v=\d+\.\d+\.\d+)?$/,
+            loader: "url?limit=10000&minetype=application/font-woff"
+          },
+          {
+            test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
+            loader: "url?limit=10000&minetype=application/octet-stream"
+          },
+          {
+            test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
+            loader: "file"
+          },
+          {
+            test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+            loader: "url?limit=10000&minetype=image/svg+xml"
+          }
+        ]
     },
 
     resolve: {
