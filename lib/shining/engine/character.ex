@@ -50,24 +50,27 @@ defmodule Shining.Engine.Character do
     + armorDef(character)) * appliedDefMod(character)
   end
 
-  def calculateCritical?(luck, %Character{} = attacker, %Character{} = target) when is_float(luck) do
-    luck > calculateCriticalPercentage(attacker, target)
+  def calculateCritical?(luck, strike, %Character{} = attacker, %Character{} = target)
+  when is_float(luck) and is_map(strike) do
+    # (with skill) +15% crit chance when in danger, +30% when in critical
+    # something here with attacker and target . luck?
+    crit_chance = Map.get(strike, :crit_chance)
+    crit_init = 0.095
+    luck > crit_init * crit_chance
   end
 
-  def calculateHit?(luck, %Character{} = attacker, %Character{} = target) when is_float(luck) do
-    luck > calculateHitPercentage(attacker, target)
+  def calculateHit?(luck, strike, %Character{} = attacker, %Character{} = target)
+  when is_float(luck) and is_map(strike) do
+    # 50% hit chance when attacker is in danger, 25% hit chance when in critical
+    target_evasion = appliedAccMod(attacker) - appliedEvaMod(target)
+    hit_chance = Map.get(strike, :hit_chance)
+    hit_init = 0.95
+    luck > hit_init + (hit_chance - 1.0) + target_evasion
   end
 
-  defp calculateCriticalPercentage(%Character{} = attacker, %Character{} = target) do
-    -0.95 + appliedBounds(0)
-  end
-
-  defp calculateHitPercentage(%Character{} = attacker, %Character{} = target) do
-    -0.05 + appliedAccMod(attacker) - appliedEvaMod(target)
-  end
-
-  def calculateDamage(%Character{} = attacker, %Character{} = target) do
-    calculateATK(attacker) - calculateDEF(target)
+  def calculateDamage(strike, %Character{} = attacker, %Character{} = target) do
+    damage = Map.get(strike, :damage)
+    (calculateATK(attacker) - calculateDEF(target)) * damage
     |> Float.ceil
     |> max(0)
     |> min(255)
@@ -190,16 +193,17 @@ defmodule Shining.Engine.Character do
   }
 
   defp race_stats(), do: %{
-    human:    %{init_hp: 60, init_sp: 40, incr_hp: 6, incr_sp: 4, init_atk: 5, init_def: 2, movement: 5, ap_per_turn: 20_000},
-    fey:      %{init_hp: 50, init_sp: 50, incr_hp: 3, incr_sp: 8, init_atk: 5, init_def: 2, movement: 5, ap_per_turn: 20_000},
-    ember:    %{init_hp: 50, init_sp: 50, incr_hp: 8, incr_sp: 3, init_atk: 5, init_def: 2, movement: 5, ap_per_turn: 20_000},
+    human:    %{init_hp: 60, init_sp: 40, incr_hp: 6, incr_sp: 4, init_atk: 5, init_def: 2, movement: 5, ap_per_turn: 20_000, armors: [:armor_light, :armor_robes, :armor_heavy]},
+    fey:      %{init_hp: 50, init_sp: 50, incr_hp: 3, incr_sp: 8, init_atk: 5, init_def: 2, movement: 5, ap_per_turn: 20_000, armors: [:armor_light, :armor_robes]},
+    ember:    %{init_hp: 50, init_sp: 50, incr_hp: 8, incr_sp: 3, init_atk: 5, init_def: 2, movement: 5, ap_per_turn: 20_000, armors: [:armor_light, :armor_heavy]},
   }
 
   defp class_stats(), do: %{
-    mercenary: %{init_hp: 4, init_sp: 2, incr_hp: 2, incr_sp: 1, init_atk: 3, init_def: 1},
-    healer:    %{init_hp: 3, init_sp: 3, incr_hp: 2, incr_sp: 1, init_atk: 0, init_def: 3},
-    archer:    %{init_hp: 3, init_sp: 3, incr_hp: 1, incr_sp: 2, init_atk: 3, init_def: 0},
-    mage:      %{init_hp: 2, init_sp: 4, incr_hp: 1, incr_sp: 2, init_atk: 2, init_def: 2},
+    mercenary: %{init_hp: 4, init_sp: 2, incr_hp: 2, incr_sp: 1, init_atk: 3, init_def: 1,  weapons: [:weapon_spear, :weapon_axe, :weapon_sword]},
+    healer:    %{init_hp: 3, init_sp: 3, incr_hp: 2, incr_sp: 1, init_atk: 0, init_def: 3, weapons: [:weapon_staff]},
+    archer:    %{init_hp: 3, init_sp: 3, incr_hp: 1, incr_sp: 2, init_atk: 3, init_def: 0, weapons: [:weapon_bow]},
+    mage:      %{init_hp: 2, init_sp: 4, incr_hp: 1, incr_sp: 2, init_atk: 2, init_def: 2}, weapons: [:weapon_staff],
   }
 
+  defp next_level_exp(), do: [0, 5, 15, 25, 40, 60, 80, 100, 125, 150, 175, 205, 235, 270, 310, 350]
 end
