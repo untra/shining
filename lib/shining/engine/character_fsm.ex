@@ -13,8 +13,24 @@ defmodule Shining.Engine.CharacterFSM do
     {:via, Registry, {Registry.Characters, "CHARACTER-"}}
   end
 
-  def handle_call({:add_player, player = %Player{}}, _from, state) do
-    
+  # Character has a running timer
+  def handle_cast(msg, %Character{fsmTimer: fsmTimer, fsmAnticipating: {newStage, _started}} = character) when !is_nil(fsmTimer) do
+    # check the timer and cancel it
+    case Process.cancel_timer(fsmTimer) do
+      # timer expired! change the state, clear the timer and anticipating
+      false -> handle_cast(msg, from, %{character | fsmTimer: nil, fsmAnticipating: nil})
+      # not yet finished! pause the clock, downstream must handle the specifics
+      remaining -> handle_cast(msg, from, %{character | fsmTimer: nil, fsmAnticipating: {newstage, remaining}})
+    end
+  end
+
+  def handle_cast({:readying, _details}, %Character{fsmAnticipating: {nextStage, time}} = character) do
+    timer = Process.send_after(self(), {:setstage, nextStage}, character, time)
+    {:noreply, %{character | fsmTimer: timer}}
+  end
+
+  def handle_cast({:setstage, nextStage}, %Character{fsmStage: currentStage} = character) do
+    {:noreply, %{character | fsmStage: nextStage}}
   end
 
   # taking damage
@@ -35,6 +51,10 @@ defmodule Shining.Engine.CharacterFSM do
   # oh snap, the character died!
   def handle_cast({:character_death, details}, state) do
     {:noreply, state}
+  end
+
+  def handle_info(msg, state) do
+    handle_cast(msg, state)
   end
 
 end

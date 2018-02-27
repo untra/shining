@@ -18,6 +18,7 @@ defmodule Shining.Items do
     def get(id, alt) when is_integer(id), do: get(id) || alt
     def all() do
     [
+        %{id: 0, name: "Error Artifact", value: 1, type: :key, specifically: %{kind: :error}},
         %{id: 1, name: "Herb 1", value: 1, type: :consumable, specifically: %{kind: :item_herb, heals_hp: 3}},
         %{id: 2, name: "Herb 2", value: 2, type: :consumable, specifically: %{kind: :item_herb, heals_hp: 5}},
         %{id: 3, name: "Herb 3", value: 3, type: :consumable, specifically: %{kind: :item_herb, heals_hp: 8}},

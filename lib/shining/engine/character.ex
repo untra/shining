@@ -98,7 +98,6 @@ defmodule Shining.Engine.Character do
     |> Enum.member(character.class)
   end
 
-
   def init_statusquo(%Character{} = character) do
     max_hp = getMaxHP(character)
     %{character | statusquo: %{
@@ -114,8 +113,9 @@ defmodule Shining.Engine.Character do
       curACCmod: 0,
       curEVAmod: 0,
       studiedBy: [],
-      fsmState: :readying,
+      fsmStage: :readying,
       fsmAnticipating: {:ready, 1000}
+      fsmTimer: nil
     }}
   end
 
