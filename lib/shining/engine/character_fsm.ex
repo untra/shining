@@ -19,18 +19,25 @@ defmodule Shining.Engine.CharacterFSM do
     case Process.cancel_timer(fsmTimer) do
       # timer expired! change the state, clear the timer and anticipating
       false -> handle_cast(msg, from, %{character | fsmTimer: nil, fsmAnticipating: nil})
-      # not yet finished! pause the clock, downstream must handle the specifics
+      # not yet finished! pause the clock, downstream must handle the specifics TODO
       remaining -> handle_cast(msg, from, %{character | fsmTimer: nil, fsmAnticipating: {newstage, remaining}})
     end
   end
 
-  def handle_cast({:readying, _details}, %Character{fsmAnticipating: {nextStage, time}} = character) do
+  def handle_cast({:anticipate, _details}, %Character{fsmAnticipating: {nextStage, time}} = character) do
     timer = Process.send_after(self(), {:setstage, nextStage}, character, time)
     {:noreply, %{character | fsmTimer: timer}}
   end
 
   def handle_cast({:setstage, nextStage}, %Character{fsmStage: currentStage} = character) do
+    # notify frontend of stage change
+    init_stage(nextStage, character)
     {:noreply, %{character | fsmStage: nextStage}}
+  end
+
+  # automate this turn, if able
+  def init_stage(:ready, %Character{fsmAutomation: {:ready, automation})
+    # some fuckin way to handle this
   end
 
   # taking damage

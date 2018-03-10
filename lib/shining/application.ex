@@ -8,6 +8,10 @@ defmodule Shining.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
+      {Registry, keys: :unique, name: Shining.AreaRegistry},
+      {Registry, keys: :unique, name: Shining.PlayerRegistry},
+      {Registry, keys: :unique, name: Shining.CharacterRegistry},
+      {Registry, keys: :unique, name: Shining.WorldRegistry},
       # Start the Ecto repository
       supervisor(Shining.Repo, []),
       # Start the endpoint when the application starts

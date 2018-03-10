@@ -114,8 +114,9 @@ defmodule Shining.Engine.Character do
       curEVAmod: 0,
       studiedBy: [],
       fsmStage: :readying,
-      fsmAnticipating: {:ready, 1000}
-      fsmTimer: nil
+      fsmAnticipating: {:ready, 1000},
+      fsmTimer: nil,
+      fsmAutomation: %{} 
     }}
   end
 
@@ -170,6 +171,8 @@ defmodule Shining.Engine.Character do
       _ -> 0
     end
   end
+
+
 
   defp getMaxAP(%Character{} = character), do: race_stats[character.race][:ap_per_turn]
 
