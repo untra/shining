@@ -1,7 +1,7 @@
 defmodule Shining.Engine.WorldSupervisor do
   use Supervisor
 
-  alias Shining.Engine.{WorldFSM}
+  alias Shining.Engine.{WorldServer}
 
   def start_link(_args) do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -13,14 +13,14 @@ defmodule Shining.Engine.WorldSupervisor do
 
   def start_world(world_name, size) do
     child_spec = %{
-      id: WorldFSM,
-      start: {WorldFSM, :start_link, [world_name, size]}
+      id: WorldServer,
+      start: {WorldServer, :start_link, [world_name, size]}
       restart: :transient
     }
   end
 
   def stop_world(world_name) do
-    child_pid = WorldFSM.pid(world_name)
+    child_pid = WorldServer.pid(world_name)
     Supervisor.terminate_child(__MODULE__, child_pid)
   end
 
@@ -47,5 +47,16 @@ defmodule Shining.Engine.WorldSupervisor do
   def area_leave(area_name) do
 
   end
+
+  def player_input() do
+    # TODO:
+    nil
+  end
+
+  def character_input() do
+    # TODO:
+    nil
+  end
+
 
 end
