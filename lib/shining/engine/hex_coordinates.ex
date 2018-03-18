@@ -52,16 +52,20 @@ defmodule Shining.Engine.HexCoordinates do
   def rotL({x,y,z}), do: {-y,-z,-x}
 
   def cycleGroup({x,y,z}) do
-    [{x,y,z}, {-z,-x,-y}, {-y,-z,-x}, {y,z x}, {z,x,y}, {-x, -y, -z}]
+    [{x,y,z},
+    {-z,-x,-y},
+    {-y,-z,-x},
+    {y,z, x}, {z,x,y}, {-x, -y, -z}]
   end
 
-  def reachable([start|visited], 0), do:
-  def reachable([start|visited] movement) when movement > 0 do
+  def reachable([_|visited], 0), do: visited
+  def reachable([start|visited], movement) when movement > 0 do
     neighbors(start)
+    # |> Enum.filter() for passable TODO
     |> Enum.map(fn (neighbor) -> MapSet.put(visited, reachable([neighbor, start|visited], movement-1)) end)
   end
 
-  def mirrorCenters(n) when is_tuple() do: cycleGroup({2 * n + 1, -n, -n-1})
+  def mirrorCenters(n) when n > 0, do: cycleGroup({2 * n + 1, -n, -n-1})
 
   def moveLegal?(moves) when is_list(moves) do
     moves
@@ -74,10 +78,11 @@ defmodule Shining.Engine.HexCoordinates do
     |> Enum.member?({x1,y1,z1})
   end
 
+    # TODO: fix this, write tests
   def pairs(steps), do: pairsBuilder(steps, 0)
 
   def pairsBuilder([], r), do: r
-  def pairsBuilder([a], r), do: r
+  def pairsBuilder([_], r), do: r
   def pairsBuilder([a, b|n], r), do: [[a, b] | [b | n]]
 
   def neighbors({x,y,z}) do

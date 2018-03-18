@@ -1,11 +1,11 @@
 defmodule Shining.Engine.Player do
   alias Shining.Engine.Player
-  @enforce_keys [:user_id]
-  defstruct [:user_id, :characters, :champion]
+  @enforce_keys [:user_id, :name]
+  defstruct [user_id: 0, characters: [], champion: nil, name: "error0"]
 
   def valid?(%Player{characters: characters, champion: champion}) do
     party_not_empty = Enum.empty?(characters)
-    champion_in_party = Enum.member(characters, champion)
+    champion_in_party = List.first(characters) == champion
     party_not_empty && champion_in_party
   end
 

@@ -1,31 +1,38 @@
 defmodule Shining.Engine.WorldSupervisor do
-  use Supervisor
+  require Logger
+  use DynamicSupervisor
 
-  alias Shining.Engine.{WorldServer}
+  alias Shining.Engine.{WorldServer, Player}
 
   def start_link(_args) do
-    Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
+    DynamicSupervisor.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
   def init(:ok) do
-    Supervisor.init(child_spec()[strategy: :one_for_one, name: Shining.Engine.WorldSupervisor])
+    DynamicSupervisor.init([strategy: :one_for_one, name: Shining.Engine.WorldSupervisor])
   end
 
-  def start_world(world_name, size) do
+  def start_world(world_name, options) do
     child_spec = %{
       id: WorldServer,
-      start: {WorldServer, :start_link, [world_name, size]}
+      start: {WorldServer, :start_link, [world_name, options]},
       restart: :transient
     }
+    DynamicSupervisor.start_child(__MODULE__, child_spec)
   end
 
   def stop_world(world_name) do
+    :ets.delete(:worlds_table, world_name)
     child_pid = WorldServer.pid(world_name)
-    Supervisor.terminate_child(__MODULE__, child_pid)
+    DynamicSupervisor.terminate_child(__MODULE__, child_pid)
   end
 
-  def player_enter(player_name) do
-
+  def player_enter(%Player{name: name} = player) do
+    # player_ok = validate(player)
+    # characters_ok = validate(player.characters)
+    # player_ok && characters_ok
+    # :ets.insert_new(name, player)
+    # child
   end
 
   def character_enter(character_name) do
@@ -57,6 +64,5 @@ defmodule Shining.Engine.WorldSupervisor do
     # TODO:
     nil
   end
-
 
 end

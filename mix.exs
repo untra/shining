@@ -33,8 +33,8 @@ defmodule Shining.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:bcrypt_elixir, "~> 1.0.6"},
-      {:comeonin, "~> 4.1.0"},
+      # {:bcrypt_elixir, "~> 1.0.6"},
+      # {:comeonin, "~> 4.1.0"},
       {:guardian, "~> 1.0"},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_pubsub, "~> 1.0"},
@@ -49,7 +49,8 @@ defmodule Shining.Mixfile do
 
   # Aliases are shortcuts or tasks specific to the current project.
   # For example, to create, migrate and run the seeds file at once:
-  #
+  # export MAKE="C:\Program Files\Git\mingw64\bin\make"
+  # cmd /K "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
   #     $ mix ecto.setup
   #
   # See the documentation for `Mix` for more info on aliases.

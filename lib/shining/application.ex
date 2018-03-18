@@ -5,13 +5,16 @@ defmodule Shining.Application do
   # for more information on OTP Applications
   def start(_type, _args) do
     import Supervisor.Spec
+    alias Shining.Engine.WorldSupervisor
 
     # Define workers and child supervisors to be supervised
     children = [
-      {Registry, keys: :unique, name: Shining.AreaRegistry},
-      {Registry, keys: :unique, name: Shining.PlayerRegistry},
-      {Registry, keys: :unique, name: Shining.CharacterRegistry},
+      # {Registry, keys: :unique, name: Shining.AreaRegistry},
+      # {Registry, keys: :unique, name: Shining.PlayerRegistry},
+      # {Registry, keys: :unique, name: Shining.CharacterRegistry},
       {Registry, keys: :unique, name: Shining.WorldRegistry},
+      WorldSupervisor,
+
       # Start the Ecto repository
       supervisor(Shining.Repo, []),
       # Start the endpoint when the application starts
@@ -19,6 +22,8 @@ defmodule Shining.Application do
       # Start your own worker by calling: Shining.Worker.start_link(arg1, arg2, arg3)
       # worker(Shining.Worker, [arg1, arg2, arg3]),
     ]
+
+    :ets.new(:worlds_table, [:public, :named_table])
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

@@ -24,6 +24,10 @@ defmodule Shining.Engine.Character do
     belongs_to :user, User
     # virtual fields
     field :statusquo, :map, virtual: true
+    field :fsmTimer,  :binary, virtual: true
+    field :fsmStage, :string, virtual: true
+    field :fsmAnticipating, :string, virtual: true
+    field :fsmAutomation, :map, virtual: true
 
     timestamps()
   end
@@ -33,6 +37,10 @@ defmodule Shining.Engine.Character do
     character
     |> cast(attrs, [:name, :class, :race, :sex, :exp, :level, :skills, :items, :equipment, :history])
     |> validate_required([:name, :class, :race, :sex, :exp, :level, :skills, :items, :equipment, :history])
+  end
+
+  def valid?(%Character{} = character) do
+    true
   end
 
   def isDead?(%Character{statusquo: %{curHP: curHP}}) when curHP >  0, do: true
@@ -116,7 +124,7 @@ defmodule Shining.Engine.Character do
       fsmStage: :readying,
       fsmAnticipating: {:ready, 1000},
       fsmTimer: nil,
-      fsmAutomation: %{} 
+      fsmAutomation: %{}
     }}
   end
 
