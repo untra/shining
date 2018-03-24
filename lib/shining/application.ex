@@ -16,9 +16,11 @@ defmodule Shining.Application do
       WorldSupervisor,
 
       # Start the Ecto repository
-      supervisor(Shining.Repo, []),
+      # TODO: commented out to disable connections to postgres db
+      # supervisor(Shining.Repo, []),
       # Start the endpoint when the application starts
-      supervisor(ShiningWeb.Endpoint, []),
+      # TODO: commented out
+      # supervisor(ShiningWeb.Endpoint, []),
       # Start your own worker by calling: Shining.Worker.start_link(arg1, arg2, arg3)
       # worker(Shining.Worker, [arg1, arg2, arg3]),
     ]

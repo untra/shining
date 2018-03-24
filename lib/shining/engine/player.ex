@@ -17,5 +17,5 @@ defmodule Shining.Engine.Player do
   end
 
   defp mean(list) when length(list) == 0, do: 0
-  defp mean(list), do: Enum.sum(list) / Enum.length(list)
+  defp mean(list), do: Enum.sum(list) / length(list)
 end

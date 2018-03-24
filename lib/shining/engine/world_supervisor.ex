@@ -4,11 +4,17 @@ defmodule Shining.Engine.WorldSupervisor do
 
   alias Shining.Engine.{WorldServer, Player}
 
-  def start_link(_args) do
-    DynamicSupervisor.start_link(__MODULE__, :ok, name: __MODULE__)
+  def start_link(world_name, options) do
+    DynamicSupervisor.start_link(__MODULE__, {world_name, options}, name: __MODULE__)
   end
 
-  def init(:ok) do
+  def init({world_name, _options}) do
+    world = case :ets.lookup(:worlds_table, world_name) do
+      [] -> %{}
+      [{^world_name, world}] -> world
+    end
+    :ets.insert(world_name, world)
+    Logger.info("Spawned new world named '#{world_name}'")
     DynamicSupervisor.init([strategy: :one_for_one, name: Shining.Engine.WorldSupervisor])
   end
 
@@ -63,6 +69,26 @@ defmodule Shining.Engine.WorldSupervisor do
   def character_input() do
     # TODO:
     nil
+  end
+
+  def terminate({:shutdown, :timeout}, _world) do
+    :ets.delete(:worlds_table, my_world_name())
+    :ok
+  end
+
+  def terminate(_reason, _world) do
+    :ok
+  end
+
+  defp my_world_name() do
+    Registry.keys(Shining.WorldRegistry, self()) |> List.first
+  end
+
+  def pid(world_name) do
+    case Registry.lookup(Shining.WorldRegistry, world_name) do
+      [] -> nil
+      [{pid, _}] -> pid
+    end
   end
 
 end

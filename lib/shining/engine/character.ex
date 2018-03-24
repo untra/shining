@@ -47,15 +47,13 @@ defmodule Shining.Engine.Character do
   def isDead?(%Character{statusquo: %{curHP: curHP}}) when curHP <= 0, do: false
 
   def calculateATK(%Character{} = character) do
-    (1 + raceAtk(character)
-    + classAtk(character)
-    + weaponAtk(character)) * appliedAtkMod(character)
+    [1, raceAtk(character), classAtk(character), (weaponAtk(character) * appliedAtkMod(character)) ]
+    |> Enum.sum
   end
 
   def calculateDEF(%Character{} = character) do
-    (1 + raceDef(character)
-    + classDef(character)
-    + armorDef(character)) * appliedDefMod(character)
+    [1, raceDef(character), classDef(character), (armorDef(character) * appliedDefMod(character)) ]
+    |> Enum.sum
   end
 
   def calculateCritical?(luck, strike, %Character{} = attacker, %Character{} = target)
@@ -97,13 +95,13 @@ defmodule Shining.Engine.Character do
   # TODO: move this logic to the phazer frontend
   defp canEquipArmor?(%Character{} = character, %{kind: kind}) do
     armor_permissions[kind]
-    |> Enum.member(character.race)
+    |> Enum.member?(character.race)
   end
 
   # TODO: move this logic to the phazer frontend
   defp canEquipWeapon?(%Character{} = character, %{kind: kind}) do
     weapon_permissions[kind]
-    |> Enum.member(character.class)
+    |> Enum.member?(character.class)
   end
 
   def init_statusquo(%Character{} = character) do
@@ -154,20 +152,22 @@ defmodule Shining.Engine.Character do
 
   defp getMaxHP(%Character{} = character) do
     champion_hp = if character.champion, do: 5, else: 0
-    1 + champion_hp
-    + race_stats[character.race][:init_hp]
-    + (race_stats[character.race][:incr_hp] * character.level)
-    + class_stats[character.class][:init_hp]
-    + (class_stats[character.class][:incr_hp] * character.level)
+    [1, champion_hp,
+    race_stats()[character.race][:init_hp],
+    (race_stats()[character.race][:incr_hp] * character.level),
+    class_stats()[character.class][:init_hp],
+    (class_stats()[character.class][:incr_hp] * character.level)
+    ] |> Enum.sum
   end
 
   defp getMaxSP(%Character{} = character) do
     champion_sp = if character.champion, do: 5, else: 0
-    1 + champion_sp
-    + race_stats[character.race][:init_sp]
-    + (race_stats[character.race][:incr_sp] * character.level)
-    + class_stats[character.class][:init_sp]
-    + (class_stats[character.class][:incr_sp] * character.level)
+    [1 , champion_sp,
+    race_stats()[character.race][:init_sp],
+    (race_stats()[character.race][:incr_sp] * character.level),
+    class_stats()[character.class][:init_sp],
+    (class_stats()[character.class][:incr_sp] * character.level)
+    ] |> Enum.sum
   end
 
   defp getInitSP(%Character{} = character) do
@@ -182,12 +182,12 @@ defmodule Shining.Engine.Character do
 
 
 
-  defp getMaxAP(%Character{} = character), do: race_stats[character.race][:ap_per_turn]
+  defp getMaxAP(%Character{} = character), do: race_stats()[character.race][:ap_per_turn]
 
-  defp raceAtk(%Character{} = character), do: race_stats[character.race][:init_atk]
-  defp raceDef(%Character{} = character), do: race_stats[character.race][:init_def]
-  defp classAtk(%Character{} = character), do: class_stats[character.class][:init_atk]
-  defp classDef(%Character{} = character), do: class_stats[character.class][:init_def]
+  defp raceAtk(%Character{} = character), do: race_stats()[character.race][:init_atk]
+  defp raceDef(%Character{} = character), do: race_stats()[character.race][:init_def]
+  defp classAtk(%Character{} = character), do: class_stats()[character.class][:init_atk]
+  defp classDef(%Character{} = character), do: class_stats()[character.class][:init_def]
 
   defp armor_permissions(), do: %{
     armor_robes: [:human, :fey, :canid, :ratman, :undead],
