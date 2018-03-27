@@ -51,11 +51,15 @@ defmodule Shining.Engine.HexCoordinates do
   def rotR({x,y,z}), do: {-z,-x,-y}
   def rotL({x,y,z}), do: {-y,-z,-x}
 
+  # the cyclegroup is the six rotations
+  # of the given coordinates around the center
   def cycleGroup({x,y,z}) do
     [{x,y,z},
     {-z,-x,-y},
     {-y,-z,-x},
-    {y,z, x}, {z,x,y}, {-x, -y, -z}]
+    {y,z, x},
+    {z,x,y},
+    {-x, -y, -z}]
   end
 
   def reachable([_|visited], 0), do: visited

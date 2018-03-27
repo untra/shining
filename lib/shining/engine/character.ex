@@ -1,7 +1,7 @@
 defmodule Shining.Engine.Character do
   use Ecto.Schema
   import Ecto.Changeset
-  alias Shining.Engine.Character
+  alias Shining.Engine.{Character}
   alias Shining.Accounts.User
 
   @type race :: :human | :fey | :ember | :canid | :centaur | :ratman | :avis | :undead | :plant | :machine
@@ -39,8 +39,18 @@ defmodule Shining.Engine.Character do
     |> validate_required([:name, :class, :race, :sex, :exp, :level, :skills, :items, :equipment, :history])
   end
 
+  # TODO: change this
   def valid?(%Character{} = character) do
     true
+  end
+
+  def currentPosition(%Character{statusquo: %{curPosition: curPosition}}), do: curPosition
+  def setPosition(%Character{} = character, {_,_,_} = pos) do
+    %{character | statusquo: %{curPosition: pos}}
+  end
+  def currentArea(%Character{statusquo: %{curArea: curArea}}), do: curArea
+  def setArea(%Character{} = character, {_,_,_} = area) do
+    %{character | statusquo: %{curArea: area}}
   end
 
   def isDead?(%Character{statusquo: %{curHP: curHP}}) when curHP >  0, do: true
@@ -119,6 +129,8 @@ defmodule Shining.Engine.Character do
       curACCmod: 0,
       curEVAmod: 0,
       studiedBy: [],
+      curPosition: {0,0,0},
+      curArea: {0,0,0},
       fsmStage: :readying,
       fsmAnticipating: {:ready, 1000},
       fsmTimer: nil,

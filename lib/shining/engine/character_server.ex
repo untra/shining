@@ -60,6 +60,21 @@ defmodule Shining.Engine.CharacterServer do
     {:noreply, state}
   end
 
+  def handle_cast({:character_death, details}, state) do
+    {:noreply, state}
+  end
+
+  # returns the current character coordinates
+  def handle_call(:current_position, _from, character) do
+    {:reply, Character.currentPosition(character), character}
+  end
+
+  # returns the current character coordinates
+  def handle_call(:current_area, _from, character) do
+    {:reply, Character.currentArea(character), character}
+  end
+
+  # handle_info redirect to handle_cast, to enable Process.send_after
   def handle_info(msg, state) do
     handle_cast(msg, state)
   end

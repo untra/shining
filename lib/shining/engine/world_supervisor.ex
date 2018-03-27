@@ -4,18 +4,12 @@ defmodule Shining.Engine.WorldSupervisor do
 
   alias Shining.Engine.{WorldServer, Player}
 
-  def start_link(world_name, options) do
-    DynamicSupervisor.start_link(__MODULE__, {world_name, options}, name: __MODULE__)
+  def start_link(_args) do
+    DynamicSupervisor.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  def init({world_name, _options}) do
-    world = case :ets.lookup(:worlds_table, world_name) do
-      [] -> %{}
-      [{^world_name, world}] -> world
-    end
-    :ets.insert(world_name, world)
-    Logger.info("Spawned new world named '#{world_name}'")
-    DynamicSupervisor.init([strategy: :one_for_one, name: Shining.Engine.WorldSupervisor])
+  def init(:ok) do
+    DynamicSupervisor.init(strategy: :one_for_one)
   end
 
   def start_world(world_name, options) do
@@ -24,12 +18,18 @@ defmodule Shining.Engine.WorldSupervisor do
       start: {WorldServer, :start_link, [world_name, options]},
       restart: :transient
     }
+    world = case :ets.lookup(:worlds_table, world_name) do
+      [] -> %{}
+      [{^world_name, world}] -> world
+    end
+    :ets.insert(world_name, world)
+    Logger.info("Spawned new world named '#{world_name}'")
     DynamicSupervisor.start_child(__MODULE__, child_spec)
   end
 
   def stop_world(world_name) do
     :ets.delete(:worlds_table, world_name)
-    child_pid = WorldServer.pid(world_name)
+    child_pid = pid(world_name)
     DynamicSupervisor.terminate_child(__MODULE__, child_pid)
   end
 

@@ -29,14 +29,16 @@
 }
 
 @type t :: %StatusQuo{
-    qHP: int,
-    qSP: int,
-    qAP: int,
-    qStatus: {:ok | :charmed | :fear | :frenzy | :poisoned | :bleed | :burn | :asleep | :blinded | :petrified  , map},
-    qATKmod: [-5...5]
-    qDEFmod: [-5...5]
-    qACCmod: [-5...5]
-    qEVAmod: [-5...5]
+    curHP: int,
+    curSP: int,
+    curAP: int,
+    curStatus: {:ok | :charmed | :fear | :frenzy | :poisoned | :bleed | :burn | :asleep | :blinded | :petrified  , map},
+    curATKmod: [-5...5]
+    curDEFmod: [-5...5]
+    curACCmod: [-5...5]
+    curEVAmod: [-5...5]
+    curposition: {x, y, z}
+    curarea: {a, b, c}
     studiedBy: list(players.t)
     animation: animation
 }
