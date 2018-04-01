@@ -14,7 +14,8 @@ config :shining, ShiningWeb.Endpoint,
   watchers: [
     node: ["node_modules/webpack/bin/webpack.js", "--watch-stdin", "--progress", "--color",
     cd: Path.expand("../assets", __DIR__)
-  ]]
+  ]],
+  ws_url: "ws://localhost:4000/socket/websocket"
 
 # ## SSL Support
 #

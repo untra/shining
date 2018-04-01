@@ -1,4 +1,4 @@
-defmodule ShiningWeb.PageView do
+defmodule ShiningWeb.WorldView do
   use ShiningWeb, :view
 
   def current_world_url(conn) do

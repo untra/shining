@@ -1,7 +1,12 @@
 <div class="jumbotron">
   <h2><%= gettext "Welcome to %{name}!", name: "Phoenix" %></h2>
   <p class="lead">A productive web framework that<br />does not compromise speed and maintainability.</p>
-  <div id="shining-content"></div>
+  <div
+    id="shining-content"
+    game-name="<%= @game_name %>"
+    auth-token="<%= @auth_token %>"
+    ws-url="<%= ws_url() %>"
+  ></div>
 </div>
 
 <div class="row marketing">
