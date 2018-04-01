@@ -4,10 +4,24 @@
 const path = require("path");
 const webpack = require("webpack");
 const env = process.env.MIX_ENV || 'dev'
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const BrowserSyncPlugin = require('browser-sync-webpack-plugin')
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const isProduction = (env === 'prod')
+const supportedBrowsers = require("./browsers");
 
+const phaserModule = path.join(__dirname, '/node_modules/phaser/')
+const phaser = path.join(phaserModule, 'src/phaser.js')
+const phoenixModule = path.join(__dirname, '../deps/phoenix/web/static/js/phoenix.js')
+const phoenix = path.join(phoenixModule)
+
+const paths = {
+  static: path.join(__dirname, "../priv/static"),
+  build: path.join(__dirname, "../priv/static/dist"),
+  node_modules: path.join(__dirname, "./node_modules"),
+  src: path.join(__dirname, "./"),
+}
 
 /*
  * Configuration
@@ -21,16 +35,22 @@ module.exports = (env) => {
 
     context: __dirname,
 
-    entry: './web/static/js/app.js',
+    entry: {
+      'app': path.join(paths.src, "js/app.js"),
+      'css': path.join(paths.src, "css/app.scss"),
+    },
 
     output: {
-      path: path.resolve(__dirname, '../priv/static/'),
-      filename: 'app.js'
+      path: paths.build,
+      filename: "[name].js",
     },
 
     resolve: {
+      modules: ["node_modules", __dirname],
+      extensions: [".js", ".json", ".jsx", ".css", ".styl"],
       alias: {
-        phoenix: __dirname + '/deps/phoenix/web/static/js/phoenix.js'
+        phoenix,
+        phaser
       }
     },
 
@@ -41,6 +61,11 @@ module.exports = (env) => {
     },
 
     module: {
+      rules: [
+        { test: /\.js$/, use: ['babel-loader'], include: path.join(__dirname, 'src') },
+        { test: /phaser-split\.js$/, use: ['expose-loader?Phaser'] },
+        { test: [/\.vert$/, /\.frag$/], use: 'raw-loader' }
+      ],
       loaders: [
           {
             test: /\.jsx?$/,
@@ -52,10 +77,14 @@ module.exports = (env) => {
           },
           {
             test: /\.scss$/,
-            loader: ExtractTextPlugin.extract(
-              'style',
-              'css' + '!sass?outputStyle=expanded'
-            )
+            loader: ExtractTextPlugin.extract({
+              fallback: "style-loader",
+              use: [
+                "css-loader?importLoaders=1&minimize&sourceMap&-autoprefixer",
+                "postcss-loader",
+                "sass-loader",
+              ],
+            })
           },
           // Inlining not working
           {
@@ -81,19 +110,19 @@ module.exports = (env) => {
         ]
     },
 
-    resolve: {
-      modules: ["node_modules", __dirname],
-      extensions: [".js", ".json", ".jsx", ".css", ".styl"]
-    },
-
     plugins: [
       new CopyWebpackPlugin([{
-        from: "./static",
-        to: path.resolve(__dirname, "../priv/static")
+        from: path.join(paths.src, 'static'),
+        to: paths.static
       }]),
       new webpack.DefinePlugin({
-        'CANVAS_RENDERER': true,
+        'CANVAS_RENDERER': false,
         'WEBGL_RENDERER': true
+      }),
+      new webpack.optimize.CommonsChunkPlugin({
+        name: 'vendor',
+        /* chunkName= ,*/
+        filename: 'vendor.bundle.js'
       }),
 
       new ExtractTextPlugin({
@@ -101,7 +130,7 @@ module.exports = (env) => {
         allChunks: true
       }),
 
-      new webpack.optimize.UglifyJsPlugin({ 
+      new webpack.optimize.UglifyJsPlugin({
         sourceMap: true,
         beautify: false,
         comments: false,
