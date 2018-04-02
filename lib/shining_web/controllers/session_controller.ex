@@ -1,19 +1,76 @@
 defmodule ShiningWeb.SessionController do
   use ShiningWeb, :controller
 
-  alias Shining.Engine.Player
+  alias Shining.Engine.{Player, Character}
   def new(conn, _) do
-    render(conn, "new.html")
+    conn
+    |> render("new.html", changeset: %{})
   end
 
-  def create(conn, %{"player" => %{
-  "player_name" => player_name,
-  "player_characters" => player_characters
-  }}) do
+  # TODO: address no utf8 allowed
+  def create(conn, %{
+  "name" => player_name,
+  }) do
+    # TODO: remove this, implement as a form
+    player_characters = [
+      %Character{
+        champion: true,
+        exp: 10,
+        level: 1,
+        name: "The Mercenary",
+        class: :mercenary,
+        race: :ember,
+        sex: false,
+        equipment: [1001, 2021, nil],
+        items: [32, 32, 32],
+        skills: [],
+        history: [],
+        appearance: 0
+      },
+      %Character{
+        champion: false,
+        level: 1,
+        name: "The Mage",
+        class: :mage,
+        race: :fey,
+        sex: true,
+        equipment: [1041, 2001, nil],
+        items: [41, 51],
+        skills: [],
+        history: [],
+        appearance: 0
+      },
+      %Character{
+        champion: false,
+        level: 1,
+        name: "The Healer",
+        class: :healer,
+        race: :human,
+        sex: false,
+        equipment: [1071, 2011, nil],
+        items: [11, 12, 1, 2],
+        skills: [],
+        history: [],
+        appearance: 0
+      },
+      %Character{
+        champion: false,
+        level: 1,
+        name: "The Archer",
+        class: :archer,
+        race: :human,
+        sex: true,
+        equipment: [1031, nil, nil],
+        items: [11, 1],
+        skills: [],
+        history: [],
+        appearance: 0
+      },
+    ]
     player = %Player{
       name: player_name,
       characters: player_characters,
-      champion: player_characters[0],
+      champion: nil,
       user_id: 0
     }
     conn

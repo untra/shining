@@ -7,24 +7,26 @@ defmodule Shining.Engine.Character do
   @type race :: :human | :fey | :ember | :canid | :centaur | :ratman | :avis | :undead | :plant | :machine
   @races [:human, :fey, :ember, :canid, :centaur, :ratman, :avis, :undead, :plant, :machine]
 
+  @type class :: :mercenary | :mage | :healer | :archer
+  @classes [:mercenary, :mage, :healer, :archer]
 
   schema "characters" do
     field :class, :integer
-    field :equipment, {:array, :integer}
-    field :exp, :integer
-    field :appearance, :integer
+    field :equipment, {:array, :integer} # [weapon, armor, bonus]
+    field :exp, :integer, default: 0 #champions start with 10 exp
+    field :appearance, :integer, default: 0
     field :history, {:array, :string}
-    field :items, {:array, :integer}
-    field :level, :integer
+    field :items, {:array, :integer} # [] six item max
+    field :level, :integer, default: 1
     field :name, :string
     field :race, :integer
-    field :sex, :boolean, default: false
+    field :sex, :boolean, default: false # false is male, true is female
     field :champion, :boolean, default: false
     field :skills, {:array, :integer}
     belongs_to :user, User
     # virtual fields
     field :statusquo, :map, virtual: true
-    field :fsmTimer,  :binary, virtual: true
+    field :fsmTimer, :binary, virtual: true
     field :fsmStage, :string, virtual: true
     field :fsmAnticipating, :string, virtual: true
     field :fsmAutomation, :map, virtual: true
@@ -104,13 +106,13 @@ defmodule Shining.Engine.Character do
 
   # TODO: move this logic to the phazer frontend
   defp canEquipArmor?(%Character{} = character, %{kind: kind}) do
-    armor_permissions[kind]
+    armor_permissions()[kind]
     |> Enum.member?(character.race)
   end
 
   # TODO: move this logic to the phazer frontend
   defp canEquipWeapon?(%Character{} = character, %{kind: kind}) do
-    weapon_permissions[kind]
+    weapon_permissions()[kind]
     |> Enum.member?(character.class)
   end
 
@@ -203,7 +205,7 @@ defmodule Shining.Engine.Character do
 
   defp armor_permissions(), do: %{
     armor_robes: [:human, :fey, :canid, :ratman, :undead],
-    armor_light: [:fey, :ember, :ratman, :avis, :undead],
+    armor_light: [:human, :fey, :ember, :ratman, :avis, :undead],
     armor_heavy: [:human, :ember, :canid, :centaur, :undead],
   }
 
@@ -211,7 +213,7 @@ defmodule Shining.Engine.Character do
     weapon_sword: [:mercenary],
     weapon_axe: [:mercenary],
     weapon_spear: [:mercenary],
-    weapon_staff: [:mages, :healers],
+    weapon_staff: [:mage, :healer],
     weapon_bow: [:archer]
   }
 
