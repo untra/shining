@@ -2,7 +2,7 @@ defmodule Shining.Engine.WorldSupervisor do
   require Logger
   use DynamicSupervisor
 
-  alias Shining.Engine.{WorldServer, Player}
+  alias Shining.Engine.{WorldServer, Player, Character}
 
   def start_link(_args) do
     DynamicSupervisor.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -33,32 +33,53 @@ defmodule Shining.Engine.WorldSupervisor do
     DynamicSupervisor.terminate_child(__MODULE__, child_pid)
   end
 
-  def player_enter(%Player{name: name} = player) do
+  def player_enter(_world_pid, %Player{name: name} = player) do
+    # TODO: validate characters (consider developing as protocol)
     # player_ok = validate(player)
     # characters_ok = validate(player.characters)
     # player_ok && characters_ok
-    # :ets.insert_new(name, player)
-    # child
+    case :ets.insert_new(Player.snowflake(player), player) do
+      false -> # already exists
+        {:error, %{reason: "player #{name} is already in this world"}}
+      _ -> # success
+        {:ok, player}
+    end
   end
 
-  def character_enter(character_name) do
+  def character_enter(_world_pid, character_name, character_conf) do
+    character = case Character.init_character(character_conf) do
+      {:error, _} ->
+        nil
+      {:ok, character} ->
+        character
+    end
+    case :ets.insert_new(Character.snowflake(character_conf), character) do
+      false -> # already exists
+        {:error, %{reason: "character #{character_name} is already in this world"}}
+      _ -> # success
+        {:ok, character}
+    end
+  end
+
+
+  def area_enter(world_pid, {x, y, z}) do
 
   end
 
-  def area_enter(area_name) do
+  def player_leave(world_pid, player_name) do
 
   end
 
-  def player_leave(player_name) do
+  def character_leave(world_pid, character_name) do
 
   end
 
-  def character_leave(character_name) do
+  def area_leave(world_pid, {x,y,z}) do
 
   end
 
-  def area_leave(area_name) do
-
+  def area_summary(world_pid, {x,y,z}) do
+    #
   end
 
   def player_input() do

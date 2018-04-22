@@ -9,7 +9,23 @@ defmodule ShiningWeb.SessionController do
 
   # TODO: address no utf8 allowed
   def create(conn, %{
-  "name" => player_name,
+  "player_name" => player_name,
+  # "c1_name" => c1_name,
+  # "c2_name" => c2_name,
+  # "c3_name" => c3_name,
+  # "c4_name" => c4_name,
+  # "c1_sex" => c1_sex,
+  # "c2_sex" => c2_sex,
+  # "c3_sex" => c3_sex,
+  # "c4_sex" => c4_sex,
+  # "c1_race" => c1_race,
+  # "c2_race" => c2_race,
+  # "c3_race" => c3_race,
+  # "c4_race" => c4_race,
+  # "c1_class" => c1_class,
+  # "c2_class" => c2_class,
+  # "c3_class" => c3_class,
+  # "c4_class" => c4_class,
   }) do
     # TODO: remove this, implement as a form
     player_characters = [
@@ -58,7 +74,7 @@ defmodule ShiningWeb.SessionController do
         level: 1,
         name: "The Archer",
         class: :archer,
-        race: :human,
+        race: :fey,
         sex: true,
         equipment: [1031, nil, nil],
         items: [11, 1],

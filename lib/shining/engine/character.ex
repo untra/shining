@@ -23,6 +23,7 @@ defmodule Shining.Engine.Character do
     field :sex, :boolean, default: false # false is male, true is female
     field :champion, :boolean, default: false
     field :skills, {:array, :integer}
+    field :player_name, :string
     belongs_to :user, User
     # virtual fields
     field :statusquo, :map, virtual: true
@@ -30,6 +31,7 @@ defmodule Shining.Engine.Character do
     field :fsmStage, :string, virtual: true
     field :fsmAnticipating, :string, virtual: true
     field :fsmAutomation, :map, virtual: true
+
 
     timestamps()
   end
@@ -194,8 +196,6 @@ defmodule Shining.Engine.Character do
     end
   end
 
-
-
   defp getMaxAP(%Character{} = character), do: race_stats()[character.race][:ap_per_turn]
 
   defp raceAtk(%Character{} = character), do: race_stats()[character.race][:init_atk]
@@ -230,5 +230,67 @@ defmodule Shining.Engine.Character do
     mage:      %{init_hp: 2, init_sp: 4, incr_hp: 1, incr_sp: 2, init_atk: 2, init_def: 2}, weapons: [:weapon_staff],
   }
 
+  def init_character(%{
+    "player_name" => player_name,
+    "name" => name,
+    "champion" => champion,
+    "class" => class,
+    "race" => race,
+    "sex" => sex,
+    "appearance" => appearance
+  } = character_conf)
+  when is_boolean(sex)
+  and is_boolean(champion)
+  and is_atom(class)
+  and is_atom(race)
+  and is_integer(appearance)
+  and is_bitstring(name)
+  and is_bitstring(player_name) do
+    %Character{character_conf |
+      equipment: init_equipment(character_conf),
+      items: init_items(character_conf),
+      level: 1,
+      skills: init_skills(character_conf),
+      exp: init_exp(character_conf),
+      history: init_history(character_conf),
+      class: class_to_int(class),
+      race: race_to_int(race)
+    }
+  end
+
+  def init_character(_character_conf), do: {:error, "bad conf"}
+
+  # init_equipment : gives initial equipment to the character
+  defp init_equipment(%{"class" => :mercenary}), do: [1001, 2021, nil]
+  defp init_equipment(%{"class" => :mage}), do: [1041, 2001, nil]
+  defp init_equipment(%{"class" => :healer}), do: [1071, 2011, nil]
+  defp init_equipment(%{"class" => :archer}), do: [1031, nil, nil]
+  defp init_equipment(_character), do: [nil, nil, nil]
+
+  # init_items : gives initial items to the character
+  defp init_items(_character), do: [11, 1]
+
+  # init_skills : gives the initial skills to the character
+  defp init_skills(%{"class" => class, "race" => race} = character) do
+    race_skills = []
+    class_skills = []
+    race_skills ++ class_skills
+  end
+
+  defp init_history(%Character{}), do: []
+
+  defp init_exp(%Character{champion: true}), do: 10
+  defp init_exp(%Character{champion: false}), do: 0
+
+  defp race_to_int(race) when is_atom(race), do: @races |> Enum.find_index(fn(r) -> r == race end)
+  defp race_to_atom(race) when is_integer(race), do: @races |> Enum.at(race)
+  defp class_to_int(class) when is_atom(class), do: @classes |> Enum.find_index(fn(c) -> c == class end)
+  defp class_to_atom(class) when is_integer(class), do: @classes |> Enum.at(class)
+
   defp next_level_exp(), do: [0, 5, 15, 25, 40, 60, 80, 100, 125, 150, 175, 205, 235, 270, 310, 350]
+
+  # snowflake determines the uuid in the ets
+  def snowflake(%Character{player_name: player_name, name: character_name}) do
+    ["CHARACTER", player_name, character_name] |> Enum.join(" ")
+  end
 end

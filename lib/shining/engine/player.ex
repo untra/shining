@@ -18,4 +18,9 @@ defmodule Shining.Engine.Player do
 
   defp mean(list) when length(list) == 0, do: 0
   defp mean(list), do: Enum.sum(list) / length(list)
+
+  # snowflake determines the uuid in the ets
+  def snowflake(%Player{name: name}) do
+    ["PLAYER", name] |> Enum.join(" ")
+  end
 end

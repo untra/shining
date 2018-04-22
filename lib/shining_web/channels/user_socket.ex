@@ -2,7 +2,8 @@ defmodule ShiningWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", ShiningWeb.RoomChannel
+  channel "world:*", ShiningWeb.WorldChannel
+  channel "player:*", ShiningWeb.PlayerChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
@@ -19,9 +20,16 @@ defmodule ShiningWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket) do
-    {:ok, socket}
+  def connect(%{"token" => token}, socket) do
+    case Phoenix.Token.verify(socket, "player auth", token) do
+      {:ok, player} ->
+        {:ok, assign(socket, :current_player, player)}
+      {:error, _reason} ->
+          :error
+    end
   end
+
+  def connect(_params, _socket), do: :error
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
   #
