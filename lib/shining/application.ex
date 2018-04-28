@@ -6,6 +6,7 @@ defmodule Shining.Application do
   def start(_type, _args) do
     import Supervisor.Spec
     alias Shining.Engine.WorldSupervisor
+    alias Shining.NameServer
 
     # Define workers and child supervisors to be supervised
     children = [
@@ -14,6 +15,7 @@ defmodule Shining.Application do
       # {Registry, keys: :unique, name: Shining.CharacterRegistry},
       {Registry, keys: :unique, name: Shining.WorldRegistry},
       WorldSupervisor,
+      NameServer,
 
       # Start the Ecto repository
       # TODO: commented out to disable connections to postgres db

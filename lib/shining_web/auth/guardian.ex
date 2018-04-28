@@ -18,9 +18,10 @@ defmodule ShiningWeb.Guardian do
     # found in the `"sub"` key. In `above subject_for_token/2` we returned
     # the resource id so here we'll rely on that to look it up.
 
-    id = claims["sub"]
-    resource = Shining.get_resource_by_id(id)
-    {:ok,  resource}
+    # id = claims["sub"]
+    # resource = Shining.get_resource_by_id(id)
+    # {:ok,  resource}
+    {:error, :notImplemented}
   end
 
   def authenticate(%{user: user, password: password}) do

@@ -42,13 +42,14 @@ defmodule ShiningWeb.UserController do
 
   def sign_in(conn, params) do
     # Find the user in the database based on the credentials sent with the request
-    login_cred = %{password: "nope"}
-    with %User{} = user <- Accounts.find(params.username) do
-      # Attempt to authenticate the user
-      with {:ok, token, _claims} <- Accounts.authenticate(%{user: user, password: login_cred.password}) do
-        # Render the token
-        render conn, "token.json", token: token
-      end
-    end
+    # login_cred = %{password: "nope"}
+    # with %User{} = user <- Accounts.find(params.username) do
+    #   # Attempt to authenticate the user
+    #   with {:ok, token, _claims} <- Accounts.authenticate(%{user: user, password: login_cred.password}) do
+    #     # Render the token
+    #     render conn, "token.json", token: token
+    #   end
+    # end
+    {:error, :notImplemented}
   end
 end

@@ -2,9 +2,15 @@ defmodule ShiningWeb.SessionController do
   use ShiningWeb, :controller
 
   alias Shining.Engine.{Player, Character}
+  alias Shining.NameServer
   def new(conn, _) do
     conn
-    |> render("new.html", changeset: %{})
+    |> render("new.html",
+      c1name: NameServer.select_male(),
+      c2name: NameServer.select_female(),
+      c3name: NameServer.select_male(),
+      c4name: NameServer.select_female(),
+    )
   end
 
   # TODO: address no utf8 allowed
@@ -93,6 +99,62 @@ defmodule ShiningWeb.SessionController do
     |> put_session(:current_player, player)
     |> redirect_back_or_to_new_game
   end
+
+  def player_characters(), do: player_characters = [
+    %Character{
+      champion: true,
+      exp: 10,
+      level: 1,
+      name: "The Mercenary",
+      class: :mercenary,
+      race: :ember,
+      sex: false,
+      equipment: [1001, 2021, nil],
+      items: [32, 32, 32],
+      skills: [],
+      history: [],
+      appearance: 0
+    },
+    %Character{
+      champion: false,
+      level: 1,
+      name: "The Mage",
+      class: :mage,
+      race: :fey,
+      sex: true,
+      equipment: [1041, 2001, nil],
+      items: [41, 51],
+      skills: [],
+      history: [],
+      appearance: 0
+    },
+    %Character{
+      champion: false,
+      level: 1,
+      name: "The Healer",
+      class: :healer,
+      race: :human,
+      sex: false,
+      equipment: [1071, 2011, nil],
+      items: [11, 12, 1, 2],
+      skills: [],
+      history: [],
+      appearance: 0
+    },
+    %Character{
+      champion: false,
+      level: 1,
+      name: "The Archer",
+      class: :archer,
+      race: :fey,
+      sex: true,
+      equipment: [1031, nil, nil],
+      items: [11, 1],
+      skills: [],
+      history: [],
+      appearance: 0
+    },
+  ]
 
   def delete(conn, _) do
     conn
