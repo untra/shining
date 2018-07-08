@@ -1,0 +1,9 @@
+<h2>New World</h2>
+<div>
+<%= form_for @conn, world_path(@conn, :create), fn f -> %>
+    <%= label f, :world_name, class: "control-label" %>
+    <%= text_input f, :world_name, value: "world-1" %>
+    <%= error_tag f, :world_name %>
+  <%= submit "Submit", class: "btn btn-primary" %>
+</div>
+<% end %>

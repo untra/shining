@@ -12,7 +12,8 @@ defmodule Shining.Engine.WorldSupervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
-  def start_world(world_name, options) do
+  # def start_world(world_name, options) when is_bitstring(world_name), do: start_world(String.to_atom(world_name), options)
+  def start_world(world_name, options) when is_bitstring(world_name) do
     child_spec = %{
       id: WorldServer,
       start: {WorldServer, :start_link, [world_name, options]},
@@ -22,13 +23,13 @@ defmodule Shining.Engine.WorldSupervisor do
       [] -> %{}
       [{^world_name, world}] -> world
     end
-    :ets.insert(world_name, world)
+    :ets.insert(:worlds_table, {world_name, world})
     Logger.info("Spawned new world named '#{world_name}'")
     DynamicSupervisor.start_child(__MODULE__, child_spec)
   end
 
   def stop_world(world_name) do
-    :ets.delete(:worlds_table, world_name)
+    :ets.delete(:worlds_table, :worlds_table, world_name)
     child_pid = pid(world_name)
     DynamicSupervisor.terminate_child(__MODULE__, child_pid)
   end

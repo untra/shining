@@ -9,8 +9,10 @@ defmodule ShiningWeb.WorldController do
     render(conn, "new.html")
   end
 
-  def create(conn, %{"world" => %{"world_name" => world_name, "options" => options}}) do
-    world_name = world_name || Shining.Utils.Haiku.generate()
+  def create(conn, %{"world_name" => world_name }) do
+    world_name = Shining.Utils.Haiku.generate()
+    # world_atom = world_name |> String.to_atom()
+    options = %{}
     case WorldSupervisor.start_world(world_name, options) do
       {:ok, _game_pid} ->
         redirect(conn, to: world_path(conn, :show, world_name))

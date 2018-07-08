@@ -43,7 +43,7 @@ function create () {
   //  Modify the world and camera bounds
   game.world.setBounds(-1000, -1000, 2000, 2000);
 
-  for (const i = 0; i < 200; i++) {
+  for (let i = 0; i < 200; i++) {
     game.add.sprite(game.world.randomX, game.world.randomY, 'mushroom');
   }
 

@@ -10,7 +10,7 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const isProduction = (env === 'prod')
 const supportedBrowsers = require("./browsers");
-
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const phaserModule = path.join(__dirname, '/node_modules/phaser/')
 const phaser = path.join(phaserModule, 'src/phaser.js')
 const phoenixModule = path.join(__dirname, '../deps/phoenix/web/static/js/phoenix.js')
@@ -62,52 +62,29 @@ module.exports = (env) => {
 
     module: {
       rules: [
-        { test: /\.js$/, use: ['babel-loader'], include: path.join(__dirname, 'src') },
+        {
+          test: /\.js$/,
+          loader: 'babel-loader',
+          query: {
+            presets: ['es2015'],
+          },
+        },
         { test: /phaser-split\.js$/, use: ['expose-loader?Phaser'] },
-        { test: [/\.vert$/, /\.frag$/], use: 'raw-loader' }
+        { test: [/\.vert$/, /\.frag$/], use: 'raw-loader' },
+        {
+          test: /\.tsx?$/,
+          use: [{
+            loader: 'babel-loader'
+          }, {
+            loader: 'ts-loader'
+          }],
+          exclude: [/node_modules/, /mocks/],
+        },
       ],
-      loaders: [
-          {
-            test: /\.jsx?$/,
-            exclude: /(node_modules|bower_components)/,
-            loader: 'babel',
-            query: {
-              presets: ['es2015', 'react']
-            }
-          },
-          {
-            test: /\.scss$/,
-            loader: ExtractTextPlugin.extract({
-              fallback: "style-loader",
-              use: [
-                "css-loader?importLoaders=1&minimize&sourceMap&-autoprefixer",
-                "postcss-loader",
-                "sass-loader",
-              ],
-            })
-          },
-          // Inlining not working
-          {
-            test: /\.(png|jpg)$/,
-            loader: 'url-loader?limit=8192'
-          },
-          {
-            test: /\.woff(2)?(\?v=\d+\.\d+\.\d+)?$/,
-            loader: "url?limit=10000&minetype=application/font-woff"
-          },
-          {
-            test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
-            loader: "url?limit=10000&minetype=application/octet-stream"
-          },
-          {
-            test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
-            loader: "file"
-          },
-          {
-            test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-            loader: "url?limit=10000&minetype=image/svg+xml"
-          }
-        ]
+    },
+
+    optimization: {
+
     },
 
     plugins: [
@@ -119,32 +96,12 @@ module.exports = (env) => {
         'CANVAS_RENDERER': false,
         'WEBGL_RENDERER': true
       }),
-      new webpack.optimize.CommonsChunkPlugin({
-        name: 'vendor',
-        /* chunkName= ,*/
-        filename: 'vendor.bundle.js'
-      }),
 
       new ExtractTextPlugin({
         filename: "css/[name].css",
         allChunks: true
       }),
 
-      new webpack.optimize.UglifyJsPlugin({
-        sourceMap: true,
-        beautify: false,
-        comments: false,
-        extractComments: false,
-        compress: {
-          warnings: false,
-          drop_console: true
-        },
-        mangle: {
-          except: ['$'],
-          screw_ie8 : true,
-          keep_fnames: true,
-        }
-      })
     ]
   };
 };

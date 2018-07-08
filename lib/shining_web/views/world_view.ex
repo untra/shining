@@ -8,4 +8,5 @@ defmodule ShiningWeb.WorldView do
   def ws_url do
     System.get_env("WS_URL") || ShiningWeb.Endpoint.config(:ws_url)
   end
+
 end

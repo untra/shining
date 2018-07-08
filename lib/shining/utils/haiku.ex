@@ -1,4 +1,5 @@
 defmodule Shining.Utils.Haiku do
+  @spec generate() :: String.t
   def generate do
     [
       Enum.random(adjectives()),

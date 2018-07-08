@@ -27,7 +27,9 @@ defmodule Shining.Application do
       # worker(Shining.Worker, [arg1, arg2, arg3]),
     ]
 
-    :ets.new(:worlds_table, [:public, :named_table])
+    :ets.new(:worlds_table, [:public, :set, :named_table])
+    :ets.new(:session, [:named_table, :public, read_concurrency: true])
+
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

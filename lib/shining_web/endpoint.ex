@@ -30,17 +30,25 @@ defmodule ShiningWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
 
-  # The session will be stored in the cookie and signed,
+  # The session will be stored in the ets and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
-  plug(
-    Plug.Session,
-    store: :cookie,
-    key: "_shining_key",
-    signing_salt: "dRsvymVw"
-  )
+  plug Plug.Session,
+    store: :ETS,
+    key: "sid",
+    table: :session
+    # key: "_shining_key",
+    # signing_salt: "dRsvymVw",
+    # encryption_salt: "uiSx9+Ap",
+    # key_length: 16
 
   plug ShiningWeb.Router
+
+  plug :put_secret_key_base
+
+  def put_secret_key_base(conn, _) do
+    put_in conn.secret_key_base, "-- LONG STRING WITH AT LEAST 64 BYTES --"
+  end
 
   @doc """
   Callback invoked for dynamically configuring the endpoint.

@@ -106,6 +106,16 @@ defmodule Shining.Engine.Character do
     }[item.type].(item.specifically)
   end
 
+  # on a character death, this chooses the item dropped by the character
+  def onDeathItemDropped(%Character{equipment: [weapon, armor, bonus], items: items} = character) when is_list(items) do
+    items
+    ++ [armor, armor]
+    ++ [weapon, weapon, weapon]
+    ++ [bonus, bonus, bonus, bonus]
+    |> Enum.reject(&is_nil/1)
+    |> Enum.take(1)
+  end
+
   # TODO: move this logic to the phazer frontend
   defp canEquipArmor?(%Character{} = character, %{kind: kind}) do
     armor_permissions()[kind]

@@ -16,6 +16,11 @@ defmodule Shining.Items do
 #    - team spd + 10%
     def get(id) when is_integer(id), do: all() |> Enum.find(fn(x) -> Map.get(x, :id) == id end)
     def get(id, alt) when is_integer(id), do: get(id) || alt
+    # def get(ids) when is_list(ids), do: all() |> Enum.find(fn(x) -> Enum.member?(ids, x) end)
+    def apply_curse(%{specifically: spec} = item) do
+        new_spec = Map.put_new(spec, :cursed, true)
+        Map.put(item, :specifically, new_spec)
+    end
     def all() do
     [
         %{id: 0, name: "Error Artifact", value: 1, type: :key, specifically: %{kind: :error}},

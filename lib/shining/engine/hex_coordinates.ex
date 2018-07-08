@@ -7,9 +7,11 @@ defmodule Shining.Engine.HexCoordinates do
   @spec valid?(hex_coordinate) :: boolean
   def valid?({x,y,z}) when x + y + z == 0, do: true
   def valid?(_), do: false
+  
+  
 
   @spec within_boundaries?(hex_coordinate, non_neg_integer) :: boolean
-  def within_boundaries?({x,y,z}, b) when abs(x) <= b or abs(y) <= b or abs(z) <= b, do: true
+  def within_boundaries?({x,y,z}, b) when abs(x) <= b or abs(y) <= b or abs(z) <= b, do: false
   def within_boundaries?(_, _), do: true
 
   @spec boundary_overflow(hex_coordinate, non_neg_integer) :: hex_direction | :none
