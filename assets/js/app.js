@@ -21,5 +21,5 @@ import "moment"
 
 // import socket from "./socket"
 console.log('fdsfdsafdsa')
-import "./game"
+import "game"
 console.log('sanity')

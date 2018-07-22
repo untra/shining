@@ -26,6 +26,7 @@ defmodule Shining.Engine.WorldSupervisor do
     :ets.insert(:worlds_table, {world_name, world})
     Logger.info("Spawned new world named '#{world_name}'")
     DynamicSupervisor.start_child(__MODULE__, child_spec)
+    {:ok, world_name}
   end
 
   def stop_world(world_name) do

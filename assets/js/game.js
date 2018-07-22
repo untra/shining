@@ -1,4 +1,3 @@
-
 console.log('fdsafdsa');
 import { Phaser } from 'phaser';
 class MyScene extends Phaser.Scene {

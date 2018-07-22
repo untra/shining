@@ -1,70 +1,75 @@
 /*
  * Modules
- **/
-const path = require("path");
-const webpack = require("webpack");
-const env = process.env.MIX_ENV || 'dev'
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const BrowserSyncPlugin = require('browser-sync-webpack-plugin')
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const isProduction = (env === 'prod')
-const supportedBrowsers = require("./browsers");
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-const phaserModule = path.join(__dirname, '/node_modules/phaser/')
-const phaser = path.join(phaserModule, 'src/phaser.js')
-const phoenixModule = path.join(__dirname, '../deps/phoenix/web/static/js/phoenix.js')
-const phoenix = path.join(phoenixModule)
+ * */
+const path = require('path');
+const webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
+const phaserModule = path.join(__dirname, '/node_modules/phaser/');
+const phaser = path.join(phaserModule, 'src/phaser.js');
+const phoenixModule = path.join(__dirname, '../deps/phoenix/web/static/js/phoenix.js');
+const phoenix = path.join(phoenixModule);
 
 const paths = {
-  static: path.join(__dirname, "../priv/static"),
-  build: path.join(__dirname, "../priv/static/dist"),
-  node_modules: path.join(__dirname, "./node_modules"),
-  src: path.join(__dirname, "./"),
-}
+  static: path.join(__dirname, '../priv/static/'),
+  build: path.join(__dirname, '../priv/static/'),
+  node_modules: path.join(__dirname, './node_modules'),
+  src: path.join(__dirname, './'),
+};
 
 /*
  * Configuration
- **/
+ * */
 module.exports = (env) => {
   const isDev = !(env && env.prod);
-  const devtool = isDev ? "eval" : "source-map";
+  const devtool = isDev ? 'eval' : 'source-map';
 
   return {
-    devtool: devtool,
+    devtool,
 
     context: __dirname,
 
     entry: {
-      'app': path.join(paths.src, "js/app.js"),
-      'css': path.join(paths.src, "css/app.scss"),
+      app: path.join(paths.src, 'js/app.js'),
+      game: path.join(paths.src, 'js/game.js'),
+      css: path.join(paths.src, 'css/app.scss'),
     },
 
     output: {
-      path: paths.build,
-      filename: "[name].js",
+      path: paths.static,
+      filename: '[name].js',
+      publicPath: 'http://localhost:8080/',
     },
 
     resolve: {
-      modules: ["node_modules", __dirname],
-      extensions: [".js", ".json", ".jsx", ".css", ".styl"],
+      modules: ['node_modules', path.resolve(__dirname, 'js')],
+      extensions: ['.js', '.json', '.jsx'],
       alias: {
         phoenix,
-        phaser
-      }
+        phaser,
+      },
     },
 
     devServer: {
       headers: {
-        "Access-Control-Allow-Origin": "*",
-      }
+        'Access-Control-Allow-Origin': '*',
+      },
     },
 
     module: {
       rules: [
         {
+          test: /\.scss$/,
+          use: [
+            'style-loader', // creates style nodes from JS strings
+            'css-loader', // translates CSS into CommonJS
+          ],
+        },
+        {
           test: /\.js$/,
           loader: 'babel-loader',
+          exclude: /node_modules/,
           query: {
             presets: ['es2015'],
           },
@@ -74,9 +79,9 @@ module.exports = (env) => {
         {
           test: /\.tsx?$/,
           use: [{
-            loader: 'babel-loader'
+            loader: 'babel-loader',
           }, {
-            loader: 'ts-loader'
+            loader: 'ts-loader',
           }],
           exclude: [/node_modules/, /mocks/],
         },
@@ -90,18 +95,18 @@ module.exports = (env) => {
     plugins: [
       new CopyWebpackPlugin([{
         from: path.join(paths.src, 'static'),
-        to: paths.static
+        to: paths.static,
       }]),
       new webpack.DefinePlugin({
-        'CANVAS_RENDERER': false,
-        'WEBGL_RENDERER': true
+        CANVAS_RENDERER: true,
+        WEBGL_RENDERER: false,
       }),
 
       new ExtractTextPlugin({
-        filename: "css/[name].css",
-        allChunks: true
+        filename: 'css/[name].css',
+        allChunks: true,
       }),
 
-    ]
+    ],
   };
 };

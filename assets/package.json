@@ -3,15 +3,15 @@
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
-    "start": "npm run watch",
-    "watch": "MIX_ENV=dev webpack --mode development --watch-stdin --progress --color --public localhost:8080",
-    "deploy": "MIX_ENV=prod webpack --mode production -p",
+    "start": "brunch watch --server",
+    "build": "brunch build --production",
+    "test": "tsc --noEmit",
     "lint": "tslint src/**/*.ts*"
   },
   "dependencies": {
     "lodash": "^4.17.10",
     "moment": "^2.20.1",
-    "phaser": "^3.3.0",
+    "phaser": "^3.7.1",
     "phoenix": "file:../deps/phoenix",
     "phoenix_html": "file:../deps/phoenix_html",
     "react": "^16.4.0",
@@ -25,6 +25,14 @@
     "typescript-fsa-redux-observable": "^0.18.0"
   },
   "devDependencies": {
+    "auto-reload-brunch": "^2",
+    "brunch": "^2",
+    "clean-css-brunch": "^2",
+    "css-brunch": "^2",
+    "javascript-brunch": "^2",
+    "uglify-js-brunch": "^2",
+    "phaser3-docs": "git+https://github.com/photonstorm/phaser3-docs.git",
+    "typescript-brunch": "github:niku/typescript-brunch",
     "@types/react": "16.3.17",
     "@types/react-dom": "16.0.6",
     "@types/react-redux": "6.0.2",
@@ -41,9 +49,11 @@
     "browser-sync-webpack-plugin": "^1.2.0",
     "case-sensitive-paths-webpack-plugin": "^2.1.2",
     "copy-webpack-plugin": "^4.3.1",
-    "eslint": "^4.3.0",
+    "css-loader": "^1.0.0",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^13.0.0",
     "eslint-config-standard": "^10.2.1",
-    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-node": "^5.1.1",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
@@ -60,8 +70,9 @@
     "typescript": "^2.9.1",
     "uglifyjs-webpack-plugin": "^1.2.5",
     "url-loader": "^0.6.2",
-    "webpack": "^4.8.3",
-    "webpack-cli": "^2.1.4"
+    "webpack": "^4.16.1",
+    "webpack-cli": "^2.1.4",
+    "webpack-dev-server": "^3.1.5"
   },
   "prettier": {
     "bracketSpacing": true,

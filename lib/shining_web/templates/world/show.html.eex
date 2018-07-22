@@ -1,0 +1,5 @@
+<h2>This world</h2>
+  <div
+    id="shining-content"
+  ></div>
+  <link rel="script" href="<%= static_path(@conn, "/game.js") %>">

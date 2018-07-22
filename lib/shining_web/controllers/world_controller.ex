@@ -10,7 +10,7 @@ defmodule ShiningWeb.WorldController do
   end
 
   def create(conn, %{"world_name" => world_name }) do
-    world_name = Shining.Utils.Haiku.generate()
+    # world_name = Shining.Utils.Haiku.generate()
     # world_atom = world_name |> String.to_atom()
     options = %{}
     case WorldSupervisor.start_world(world_name, options) do
@@ -23,18 +23,23 @@ defmodule ShiningWeb.WorldController do
     end
   end
 
-  def show(conn, %{"id" => world_name}) do
-    case WorldSupervisor.pid(world_name) do
-      pid when is_pid(pid) ->
-        conn
-        |> assign(:world_name, world_name)
-        |> assign(:auth_token, generate_auth_token(conn))
-        |> render("show.html")
-      nil ->
-        conn
-        |> put_flash(:error, "game not found!")
-        |> redirect(to: world_path(conn, :new))
-    end
+  def show(conn, %{"id" => world_id}) do
+    IO.inspect(world_id)
+    # case WorldSupervisor.pid(world_id) do
+    #   pid when is_pid(pid) ->
+    #     conn
+    #     |> assign(:world_name, world_id)
+    #     |> assign(:auth_token, generate_auth_token(conn))
+    #     |> render("show.html")
+    #   nil ->
+    #     conn
+    #     |> put_flash(:error, "game not found!")
+    #     |> redirect(to: world_path(conn, :new))
+    # end
+    conn
+    |> assign(:world_name, world_id)
+    |> assign(:auth_token, generate_auth_token(conn))
+    |> render("show.html")
   end
 
   # if the player has been setup, let them continue
